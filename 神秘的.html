@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全能加密解密工具 (终极版)</title>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@3.3.0/crypto-js.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --panel-bg: #2d2d2d;
+            --accent-color: #00c9b7; /* 青色主色调 */
+            --border-color: #444;
+            --hover-bg: #383838;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --panel-bg: #ffffff;
+            --accent-color: #007bff; /* 浅蓝色 */
+            --border-color: #ddd;
+            --hover-bg: #f0f0f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: var(--panel-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--accent-color);
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .theme-toggle {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        .theme-toggle button {
+            background: none;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle button:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        select, input[type="number"], textarea, button {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border 0.2s, background 0.2s;
+        }
+
+        select:focus, input[type="number"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 12px 20px;
+            border-radius: 6px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .button-secondary {
+            background-color: var(--border-color);
+        }
+
+        .result-box {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 6px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .result-box h3 {
+            margin-top: 0;
+            color: var(--accent-color);
+            font-size: 16px;
+        }
+
+        .result-content {
+            word-break: break-all;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 40px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--accent-color);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--hover-bg);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-color);
+            color: var(--bg-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .advanced-options {
+            background: var(--hover-bg);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .option-group {
+            margin-bottom: 10px;
+        }
+
+        .option-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .option-group label {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 15px;
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        .option-group input[type="checkbox"] {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="container">
+        <div class="theme-toggle">
+            <button onclick="toggleTheme()">切换主题</button>
+        </div>
+        <h1>🔐 全能加密解密工具 (终极版)</h1>
+
+        <div class="advanced-options">
+            <div class="option-group">
+                <label><input type="checkbox" id="autoCopy" checked> 处理后自动复制结果</label>
+                <label><input type="checkbox" id="showAdvanced" checked> 显示高级选项</label>
+            </div>
+            <div class="option-group" id="advancedSection">
+                <label><input type="checkbox" id="preserveWhitespace" checked> 保留空格和换行</label>
+                <label><input type="checkbox" id="caseSensitive" checked> 大小写敏感</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="encryptType">选择加密/解密方式</label>
+            <select id="encryptType">
+                <optgroup label="基础编码">
+                    <option value="base64-encode">Base64 编码</option>
+                    <option value="base64-decode">Base64 解码</option>
+                    <option value="url-encode">URL 编码</option>
+                    <option value="url-decode">URL 解码</option>
+                    <option value="unicode-encode">Unicode 编码</option>
+                    <option value="unicode-decode">Unicode 解码</option>
+                    <option value="rot13">ROT13 简易加密</option>
+                </optgroup>
+                <optgroup label="经典加密">
+                    <option value="caesar-encode">凯撒密码 编码 (+偏移)</option>
+                    <option value="caesar-decode">凯撒密码 解码 (-偏移)</option>
+                </optgroup>
+                <optgroup label="哈希摘要">
+                    <option value="md5">MD5 哈希 (不可逆)</option>
+                    <option value="sha1">SHA-1 哈希 (不可逆)</option>
+                    <option value="sha256">SHA-256 哈希 (不可逆)</option>
+                    <option value="sha512">SHA-512 哈希 (不可逆)</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <div class="form-group" id="shiftGroup" style="display: none;">
+            <label for="shiftValue">偏移量 (Shift Value)</label>
+            <input type="number" id="shiftValue" value="5" min="1" max="25">
+            <small class="tooltip" data-tooltip="凯撒密码中字母向后移动的位数">ⓘ 帮助</small>
+        </div>
+
+        <div class="form-group">
+            <label for="inputText">输入内容</label>
+            <textarea id="inputText" placeholder="请输入需要处理的文本..."></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button onclick="processText()">执行处理</button>
+            <button onclick="clearAll()" class="button-secondary">清空</button>
+            <button onclick="processText(true)" class="button-secondary">组合加密 (Base64+凯撒)</button>
+            <button onclick="processText(false)" class="button-secondary">组合解密 (凯撒+Base64)</button>
+        </div>
+
+        <div class="result-box">
+            <h3>处理结果 <span id="copyStatus" style="font-size: 12px; color: var(--accent-color); display: none;">已复制!</span></h3>
+            <button class="copy-btn" onclick="copyResult()">📋</button>
+            <div id="resultContent" class="result-content">结果将显示在这里...</div>
+        </div>
+    </div>
+
+    <script>
+        // 主题切换
+        function toggleTheme() {
+            const body = document.body;
+            body.dataset.theme = body.dataset.theme === 'dark' ? 'light' : 'dark';
+        }
+
+        // 显示/隐藏高级选项
+        document.getElementById('showAdvanced').addEventListener('change', function() {
+            const advancedSection = document.getElementById('advancedSection');
+            advancedSection.style.display = this.checked ? 'block' : 'none';
+        });
+
+        // 显示/隐藏偏移量输入框
+        document.getElementById('encryptType').addEventListener('change', function() {
+            const shiftGroup = document.getElementById('shiftGroup');
+            shiftGroup.style.display = (this.value.includes('caesar')) ? 'block' : 'none';
+        });
+
+        // 复制结果
+        function copyResult() {
+            const resultText = document.getElementById('resultContent').textContent;
+            navigator.clipboard.writeText(resultText).then(() => {
+                const copyStatus = document.getElementById('copyStatus');
+                copyStatus.style.display = 'inline';
+                setTimeout(() => {
+                    copyStatus.style.display = 'none';
+                }, 1500);
+            });
+        }
+
+        // 核心处理函数
+        function processText(isCombined = false) {
+            const type = document.getElementById('encryptType').value;
+            const input = document.getElementById('inputText').value;
+            const shift = parseInt(document.getElementById('shiftValue').value) || 5;
+            const resultEl = document.getElementById('resultContent');
+            const autoCopy = document.getElementById('autoCopy').checked;
+
+            if (!input.trim()) {
+                resultEl.textContent = '❌ 错误：请输入需要处理的内容！';
+                return;
+            }
+
+            try {
+                let result = '';
+
+                if (isCombined) {
+                    // 组合加密：Base64 + 凯撒
+                    const base64Str = btoa(unescape(encodeURIComponent(input)));
+                    result = caesarCipher(base64Str, shift);
+                } else if (type.startsWith('combined-decode')) {
+                    // 组合解密：凯撒 + Base64
+                    const caesarStr = caesarCipher(input, -shift);
+                    result = decodeURIComponent(escape(atob(caesarStr)));
+                } else {
+                    // 单一处理
+                    switch (type) {
+                        case 'base64-encode':
+                            result = btoa(unescape(encodeURIComponent(input)));
+                            break;
+                        case 'base64-decode':
+                            result = decodeURIComponent(escape(atob(input)));
+                            break;
+                        case 'url-encode':
+                            result = encodeURIComponent(input);
+                            break;
+                        case 'url-decode':
+                            result = decodeURIComponent(input);
+                            break;
+                        case 'unicode-encode':
+                            result = unescape(encodeURIComponent(input)).replace(/[\u0080-\uffff]/g, c => '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4));
+                            break;
+                        case 'unicode-decode':
+                            result = decodeURIComponent(input.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => '%u' + hex));
+                            break;
+                        case 'rot13':
+                            result = caesarCipher(input, 13);
+                            break;
+                        case 'caesar-encode':
+                            result = caesarCipher(input, shift);
+                            break;
+                        case 'caesar-decode':
+                            result = caesarCipher(input, -shift);
+                            break;
+                        case 'md5':
+                            result = CryptoJS.MD5(input).toString();
+                            break;
+                        case 'sha1':
+                            result = CryptoJS.SHA1(input).toString();
+                            break;
+                        case 'sha256':
+                            result = CryptoJS.SHA256(input).toString();
+                            break;
+                        case 'sha512':
+                            result = CryptoJS.SHA512(input).toString();
+                            break;
+                    }
+                }
+
+                resultEl.textContent = result || '✅ 处理完成（无输出）';
+                
+                // 自动复制
+                if (autoCopy && result) {
+                    navigator.clipboard.writeText(result);
+                }
+            } catch (e) {
+                resultEl.textContent = '❌ 处理失败：' + e.message;
+            }
+        }
+
+        // 凯撒密码核心算法
+        function caesarCipher(str, shift) {
+            const caseSensitive = document.getElementById('caseSensitive').checked;
+            
+            return str.split('').map(char => {
+                if (char.match(/[a-z]/i)) {
+                    const code = char.charCodeAt(0);
+                    const isUpperCase = char >= 'A' && char <=| 'Z';
+                    const base = isUpperCase ? 65 : 97;
+                    
+                    if (!caseSensitive && !isUpperCase) {
+                        // 不区分大小写时，统一按小写处理
+                        return String.fromCharCode((code - 97 + shift + 26) % 26 + 97);
+                    }
+                    
+                    return String.fromCharCode((code - base + shift + 26) % 26 + base);
+                }
+                // 非字母字符（如空格、!、数字）保持不变
+                return char;
+            }).join('');
+        }
+
+        // 清空功能
+        function clearAll() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('resultContent').textContent = '结果将显示在这里...';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全能加密解密工具(终极版)</title>
+    <style>
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #58a6ff;
+            font-size: 24px;
+            margin: 0 0 10px 0;
+        }
+        .subtitle {
+            color: #8b949e;
+            font-size: 14px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+        }
+        @media (max-width: 1000px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+        .panel {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .panel h2 {
+            color: #58a6ff;
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .panel h2::before {
+            content: '>';
+            color: #3fb950;
+            margin-right: 8px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #8b949e;
+            font-size: 13px;
+        }
+        textarea, select, input[type="text"] {
+            width: 100%;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: none;
+        }
+        textarea {
+            flex: 1;
+            min-height: 150px;
+        }
+        select, input[type="text"] {
+            height: 40px;
+        }
+        textarea:focus, select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 1px #58a6ff;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        button {
+            background-color: #238636;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            flex: 1;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #2ea043;
+        }
+        button.secondary {
+            background-color: #30363d;
+        }
+        button.secondary:hover {
+            background-color: #484f58;
+        }
+        .advanced-options {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: #58a6ff;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .toggle-icon {
+            margin-right: 5px;
+            transition: transform 0.2s;
+        }
+        .toggle-icon.open {
+            transform: rotate(90deg);
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #8b949e;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            color: #58a6ff;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6e7681;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        .badge.success {
+            background-color: #238636;
+            color: white;
+        }
+        .badge.info {
+            background-color: #58a6ff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>全能加密解密工具 <span class="badge success">v2.5</span></h1>
+        <div class="subtitle">集多种加密算法于一体，支持在线编码与解码，高效、准确、易用</div>
+    </div>
+
+    <div class="container">
+        <div class="panel">
+            <h2>输入区域</h2>
+            <div class="form-group">
+                <label for="inputText">请输入需要处理的文本</label>
+                <textarea id="inputText" placeholder="在此粘贴或输入文本..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="algorithmSelect">选择加密/解密算法</label>
+                <select id="algorithmSelect">
+                    <option value="base64">Base64 编码/解码</option>
+                    <option value="url">URL 编码/解码</option>
+                    <option value="caesar">凯撒密码</option>
+                    <option value="rot13">ROT13 编码</option>
+                    <option value="pigpen">猪圈密码</option>
+                </select>
+            </div>
+            <div class="toggle-container" id="toggleAdvanced">
+                <span class="toggle-icon" id="toggleIcon">▶</span>
+                <span>显示高级选项</span>
+            </div>
+            <div class="advanced-options" id="advancedOptions" style="display: none;">
+                <div class="form-group">
+                    <label for="shiftInput">凯撒密码偏移量 (Shift)</label>
+                    <input type="number" id="shiftInput" value="3" min="1" max="25">
+                </div>
+                <div class="form-group">
+                    <label for="caseSensitive">大小写敏感</label>
+                    <select id="caseSensitive">
+                        <option value="sensitive">敏感 (区分大小写)</option>
+                        <option value="insensitive">不敏感 (统一转换)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button id="encryptBtn">加密 🔒</button>
+                <button id="decryptBtn" class="secondary">解密 🔓</button>
+                <button id="clearBtn" class="secondary">清空 🗑️</button>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="inputCharCount">0</div>
+                    <div>字符数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="inputByteCount">0</div>
+                    <div>字节数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="outputCharCount">0</div>
+                    <div>结果长度</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>输出区域</h2>
+            <div class="form-group">
+                <label for="outputText">处理结果</label>
+                <textarea id="outputText" readonly placeholder="处理后的结果将显示在这里..."></textarea>
+            </div>
+            <div class="btn-group">
+                <button id="copyBtn">复制结果 📋</button>
+                <button id="downloadBtn" class="secondary">下载文件 💾</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        由 <strong>莱万汀Laevatain</strong> 精心打造 | 支持多种加密算法，专为开发者与安全爱好者设计
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const algorithmSelect = document.getElementById('algorithmSelect');
+        const shiftInput = document.getElementById('shiftInput');
+        const caseSensitiveSelect = document.getElementById('caseSensitive');
+        const encryptBtn = document.getElementById('encryptBtn');
+        const decryptBtn = document.getElementById('decryptBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const toggleAdvanced = document.getElementById('toggleAdvanced');
+        const advancedOptions = document.getElementById('advancedOptions');
+        const toggleIcon = document.getElementById('toggleIcon');
+        const inputCharCount = document.getElementById('inputCharCount');
+        const inputByteCount = document.getElementById('inputByteCount');
+        const outputCharCount = document.getElementById('outputCharCount');
+
+        // 高级选项切换
+        toggleAdvanced.addEventListener('click', () => {
+            if (advancedOptions.style.display === 'none') {
+                advancedOptions.style.display = 'block';
+                toggleIcon.classList.add('open');
+            } else {
+                advancedOptions.style.display = 'none';
+                toggleIcon.classList.remove('open');
+            }
+        });
+
+        // 统计字符数和字节数
+        function updateStats() {
+            const text = inputText.value;
+            inputCharCount.textContent = text.length;
+            // 计算UTF-8字节数
+            const encoder = new TextEncoder();
+            const bytes = encoder.encode(text);
+            inputByteCount.textContent = bytes.length;
+            outputCharCount.textContent = outputText.value.lengt
